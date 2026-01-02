@@ -1,0 +1,5 @@
+Tracking Number,Service Type,Zone,Ship Date,Delivery Date,Delivery Time,Promised Time,Weight (lbs),Amount Charged,Surcharges,Status,Refund Eligible,Refund Amount,Audit Reason,Classification Error,Classification Error Reason
+123456789012,Priority Overnight,2,2024-01-10,2024-01-11,14:30,10:30,25.5,125.5,"Fuel Surcharge, Residential",Delivered,True,125.5,Late delivery: 14:30 vs promised 10:30,False,
+987654321098,Ground,5,2024-01-08,2024-01-12,16:45,17:00,65.0,89.25,"Residential, Signature Required",Delivered,False,0.0,,True,Residential surcharge applied to shipment >50lbs (weight: 65.0lbs). May be misclassified.
+555555555555,Express Saver,3,2024-01-09,2024-01-11,11:00,12:00,15.0,42.75,Fuel Surcharge,Delivered,False,0.0,,False,
+777777777777,Standard Overnight,2,2024-01-11,2024-01-12,15:30,10:30,30.0,210.0,"Residential, Saturday Delivery",Weather Delay,False,0.0,,False,
