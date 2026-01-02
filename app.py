@@ -178,7 +178,30 @@ elif st.session_state.get('run_demo'):
         "Refund Opp": ["$84.20", "$5.50", "$112.00"]
     })
     st.dataframe(mock_data, use_container_width=True)
+# --- NEW: VISUAL ANALYTICS (The "Mockup" Look) ---
+        st.markdown("### 📊 Recovery Probability Distribution")
+        
+        # Create a mock chart using Plotly (Industry Standard)
+        import plotly.graph_objects as go
+        
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=['Ground', 'Express', 'Intl', 'Freight'],
+            y=[84.20, 112.00, 45.50, 220.10],
+            marker_color=['#2E86C1', '#17A589', '#D4AC0D', '#CB4335'],
+            opacity=0.8
+        ))
+        
+        fig.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            height=300,
+            margin=dict(l=0, r=0, t=20, b=0)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
+    # --- END OF NEW CODE ---
 else:
     # IDLE STATE
     st.info("Awaiting Input... Upload PDF to initialize 'Mirror Market' scan.")
