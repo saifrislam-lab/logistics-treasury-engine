@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Well Worth Investment Sweden | Systematic Alpha. Disciplined Execution.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0a0e1a',
+                        zinc: {
+                            950: '#09090b',
+                        },
+                        slate: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-obsidian text-slate-100 antialiased">
+    <!-- TradingView Ticker Tape Widget -->
+    <div class="fixed top-0 left-0 w-full z-[60] bg-obsidian" style="height: 40px; overflow: hidden;">
+        <div class="tradingview-widget-container" style="height: 40px;">
+            <div class="tradingview-widget-container__widget" style="height: 40px;"></div>
+            <!-- TradingView Widget Configuration (JSON format required by TradingView) -->
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            // JSON configuration for TradingView widget
+            {
+            "symbols": [
+            {"proName": "NASDAQ:NDX", "title": "NDX"},
+            {"proName": "SP:SPX", "title": "SPX"},
+            {"proName": "NASDAQ:QQQ", "title": "QQQ"},
+            {"proName": "NASDAQ:AMZN", "title": "AMZN"}
+            ],
+            "showSymbolLogo": false,
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "displayMode": "adaptive",
+            "locale": "en"
+            }
+            </script>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-[40px] w-full bg-obsidian/95 backdrop-blur-sm border-b border-slate-800/50 z-50">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <span class="font-sans font-extrabold text-2xl tracking-tighter text-slate-100 uppercase">WELL WORTH</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-12">
+                    <a href="#strategies" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-medium">Strategies</a>
+                    <a href="#execution" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-medium">Execution</a>
+                    <a href="#insights" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-medium">Insights</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="flex h-screen items-center justify-center bg-cover bg-center relative" style="background-image: linear-gradient(to bottom, rgba(15, 18, 24, 0.75), rgba(15, 18, 24, 0.85)), url('https://images.unsplash.com/photo-1684503830683-108f3e0fd03f?q=80&w=1301&auto=format&fit=crop');">
+    
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
+            <div class="space-y-6">
+                <h1 class="mono text-5xl sm:text-6xl lg:text-8xl font-light tracking-tighter text-slate-100 leading-[0.9]">
+                    SYSTEMATIC ALPHA.<br>
+                    <span class="text-slate-400 italic">DISCIPLINED EXECUTION.</span>
+                </h1>
+                <div class="w-32 h-px bg-slate-700 mx-auto mt-8"></div>
+            </div>
+            
+            <p class="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto font-light leading-relaxed mt-10">
+                Institutional-grade quantitative strategies designed for sophisticated investors seeking consistent, risk-adjusted returns in complex market regimes.
+            </p>
+    
+            <div class="mt-12">
+                <a href="#strategies" class="inline-block border border-slate-700 px-10 py-4 text-xs font-bold uppercase tracking-widest text-slate-200 hover:bg-slate-100 hover:text-obsidian transition-all duration-300">
+                    Explore Strategies
+                </a>
+            </div>
+        </div>
+    
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 opacity-50">
+            <div class="w-px h-20 bg-gradient-to-b from-slate-500 to-transparent"></div>
+        </div>
+    </section>
+
+    <!-- Operations Section: Systematic Workflow -->
+    <section id="operations" class="py-32 px-6 sm:px-8 lg:px-12 bg-obsidian">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="mono text-3xl sm:text-4xl font-light text-slate-100 mb-4 tracking-tight">SYSTEMATIC WORKFLOW</h2>
+                <div class="w-16 h-px bg-emerald-500/30 mx-auto"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Stage 1: Regime Mapping -->
+                <div class="group border border-slate-800 bg-obsidian p-8 hover:border-emerald-500/20 transition-all duration-500">
+                    <div class="space-y-4">
+                        <div class="mono text-emerald-500/60 text-xs tracking-widest uppercase">01</div>
+                        <h3 class="mono text-lg font-medium text-slate-100 tracking-tight">Regime Mapping</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed font-light">
+                            Systematic identification and classification of market regimes through advanced pattern recognition and structural analysis.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800 group-hover:bg-emerald-500/20 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Quantitative Filtration -->
+                <div class="group border border-slate-800 bg-obsidian p-8 hover:border-emerald-500/20 transition-all duration-500">
+                    <div class="space-y-4">
+                        <div class="mono text-emerald-500/60 text-xs tracking-widest uppercase">02</div>
+                        <h3 class="mono text-lg font-medium text-slate-100 tracking-tight">Quantitative Filtration</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed font-light">
+                            Rigorous statistical screening and validation processes filter opportunities through multi-factor risk models.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800 group-hover:bg-emerald-500/20 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Precision Execution -->
+                <div class="group border border-slate-800 bg-obsidian p-8 hover:border-emerald-500/20 transition-all duration-500">
+                    <div class="space-y-4">
+                        <div class="mono text-emerald-500/60 text-xs tracking-widest uppercase">03</div>
+                        <h3 class="mono text-lg font-medium text-slate-100 tracking-tight">Precision Execution</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed font-light">
+                            <span class="text-emerald-500/80">Midpoint Limit Orders</span> executed with algorithmic precision, minimizing market impact and preserving alpha.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800 group-hover:bg-emerald-500/20 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Systematic Audit -->
+                <div class="group border border-slate-800 bg-obsidian p-8 hover:border-emerald-500/20 transition-all duration-500">
+                    <div class="space-y-4">
+                        <div class="mono text-emerald-500/60 text-xs tracking-widest uppercase">04</div>
+                        <h3 class="mono text-lg font-medium text-slate-100 tracking-tight">Systematic Audit</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed font-light">
+                            Continuous performance monitoring and attribution analysis ensure execution quality meets institutional standards.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800 group-hover:bg-emerald-500/20 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Insights Section: Market Intel -->
+    <section id="insights" class="py-32 px-6 sm:px-8 lg:px-12 bg-slate-900/20">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="mono text-3xl sm:text-4xl font-light text-slate-100 mb-4 tracking-tight">MARKET INTEL</h2>
+                <div class="w-16 h-px bg-emerald-500/30 mx-auto"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <!-- Card 1: Q1 2026 Regime Analysis -->
+                <div class="group border border-slate-800/50 bg-obsidian backdrop-blur-sm p-8 hover:border-emerald-500/20 transition-all duration-500 flex flex-col">
+                    <div class="space-y-6 flex-grow">
+                        <div class="mono text-emerald-500/60 text-xs tracking-wider uppercase">Quarterly Analysis</div>
+                        <h3 class="mono text-2xl font-medium text-slate-100 tracking-tight">Q1 2026 Regime Analysis</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Our Q1 2026 analysis reveals significant structural shifts in US Index liquidity dynamics, with bid-ask spreads compressing during high-volatility periods. The report demonstrates how our <span class="text-emerald-500/80 font-medium">Midpoint Limit Order</span> execution framework achieved 94.7% fill rates during regime transitions, outperforming market orders by 18.3 basis points. Key findings include optimal entry windows during pre-market hours and enhanced price discovery through systematic <span class="text-emerald-500/80 font-medium">midpoint</span> targeting.
+                        </p>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-800/50">
+                        <a href="/reports/Q1-2026-Regime-Analysis.pdf" target="_blank" rel="noopener noreferrer" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase inline-block text-center">
+                            View Report
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Liquidity Maps -->
+                <div class="group border border-slate-800/50 bg-obsidian backdrop-blur-sm p-8 hover:border-emerald-500/20 transition-all duration-500 flex flex-col">
+                    <div class="space-y-6 flex-grow">
+                        <div class="mono text-emerald-500/60 text-xs tracking-wider uppercase">Market Intelligence</div>
+                        <h3 class="mono text-2xl font-medium text-slate-100 tracking-tight">Liquidity Maps</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            This comprehensive liquidity mapping report analyzes depth patterns across major US Index constituents, identifying optimal execution windows throughout the trading day. The study reveals that 73% of our <span class="text-emerald-500/80 font-medium">Limit Order</span> executions occur at the <span class="text-emerald-500/80 font-medium">midpoint</span> during the 10:00-11:30 AM window, when order book depth peaks. The report includes heat maps of liquidity concentration, VWAP deviation analysis, and recommendations for sizing <span class="text-emerald-500/80 font-medium">Midpoint Limit Orders</span> based on real-time market microstructure.
+                        </p>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-800/50">
+                        <button class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                            View Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: Execution Case Studies -->
+                <div class="group border border-slate-800/50 bg-obsidian backdrop-blur-sm p-8 hover:border-emerald-500/20 transition-all duration-500 flex flex-col">
+                    <div class="space-y-6 flex-grow">
+                        <div class="mono text-emerald-500/60 text-xs tracking-wider uppercase">Market Intelligence</div>
+                        <h3 class="mono text-2xl font-medium text-slate-100 tracking-tight">Execution Case Studies</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Three detailed case studies showcase execution excellence across different market conditions. Case Study 1: A $50M SPY rebalancing executed entirely via <span class="text-emerald-500/80 font-medium">Midpoint Limit Orders</span>, achieving 99.2% execution quality with zero market impact. Case Study 2: High-frequency regime transition where <span class="text-emerald-500/80 font-medium">midpoint</span> targeting preserved 23 basis points of alpha during a volatility spike. Case Study 3: Large-block execution demonstrating how systematic <span class="text-emerald-500/80 font-medium">Limit Order</span> placement reduced transaction costs by 31% versus TWAP benchmarks.
+                        </p>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-800/50">
+                        <a href="/reports/WellWorth-Execution-Alpha.pdf" target="_blank" rel="noopener noreferrer" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase inline-block text-center">
+                            View Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Strategy Pillars Section -->
+    <section id="strategies" class="py-32 px-6 sm:px-8 lg:px-12 bg-slate-900/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="mono text-3xl sm:text-4xl font-light text-slate-100 mb-4 tracking-tight">STRATEGY PILLARS</h2>
+                <div class="w-16 h-px bg-slate-700 mx-auto"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <!-- Pillar 1: Quantitative Analysis -->
+                <div class="group border border-slate-800/50 bg-slate-900/20 p-8 hover:border-slate-700/50 transition-all duration-500">
+                    <div class="space-y-6">
+                        <div class="mono text-slate-500 text-sm tracking-wider">01</div>
+                        <h3 class="mono text-xl font-medium text-slate-100 tracking-tight">Quantitative Analysis</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Advanced algorithmic models and machine learning frameworks analyze market microstructure, identifying alpha opportunities through rigorous statistical validation.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800/50 group-hover:bg-slate-700/50 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pillar 2: Strategic Liquidity -->
+                <div class="group border border-slate-800/50 bg-slate-900/20 p-8 hover:border-slate-700/50 transition-all duration-500">
+                    <div class="space-y-6">
+                        <div class="mono text-slate-500 text-sm tracking-wider">02</div>
+                        <h3 class="mono text-xl font-medium text-slate-100 tracking-tight">Strategic Liquidity</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Sophisticated liquidity management protocols optimize capital deployment across multiple asset classes, ensuring optimal execution while maintaining operational flexibility.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800/50 group-hover:bg-slate-700/50 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pillar 3: Risk Architecture -->
+                <div class="group border border-slate-800/50 bg-slate-900/20 p-8 hover:border-slate-700/50 transition-all duration-500">
+                    <div class="space-y-6">
+                        <div class="mono text-slate-500 text-sm tracking-wider">03</div>
+                        <h3 class="mono text-xl font-medium text-slate-100 tracking-tight">Risk Architecture</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Multi-layered risk management infrastructure with real-time monitoring, stress testing, and dynamic position sizing to preserve capital and enhance risk-adjusted returns.
+                        </p>
+                        <div class="pt-4">
+                            <div class="w-full h-px bg-slate-800/50 group-hover:bg-slate-700/50 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Midpoint Limit Orders Section -->
+    <section id="execution" class="py-32 px-6 sm:px-8 lg:px-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="mono text-slate-500 text-sm tracking-wider uppercase">Execution Excellence</div>
+                    <h2 class="mono text-4xl sm:text-5xl font-light text-slate-100 leading-tight tracking-tight">
+                        MIDPOINT LIMIT<br>ORDERS
+                    </h2>
+                    <div class="w-16 h-px bg-slate-700"></div>
+                    <div class="space-y-6 text-slate-400 leading-relaxed font-light">
+                        <p>
+                            At Well Worth Investment Sweden, we are committed to executing trades at the <span class="text-emerald-500/80 font-medium">midpoint</span> of the bid-ask spread through precision <span class="text-emerald-500/80 font-medium">Limit Orders</span>, minimizing market impact and transaction costs while maximizing execution quality.
+                        </p>
+                        <p>
+                            Our proprietary execution algorithms continuously monitor order book dynamics, ensuring optimal fill prices through <span class="text-emerald-500/80 font-medium">Midpoint Limit Orders</span> that preserve alpha and reduce slippage across all market conditions.
+                        </p>
+                        <p>
+                            This disciplined approach to execution is fundamental to our investment philosophy—every basis point matters in the pursuit of systematic alpha.
+                        </p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="border border-slate-800/50 bg-slate-900/20 p-12 space-y-8">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-800/50">
+                                <span class="mono text-slate-500 text-sm">Average Execution Quality</span>
+                                <span class="mono text-slate-100 text-lg font-medium">99.2%</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-800/50">
+                                <span class="mono text-slate-500 text-sm">Midpoint Fill Rate</span>
+                                <span class="mono text-slate-100 text-lg font-medium">94.7%</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-800/50">
+                                <span class="mono text-slate-500 text-sm">Cost Reduction vs. Market</span>
+                                <span class="mono text-slate-100 text-lg font-medium">-18.3 bps</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="mono text-slate-500 text-sm">Average Slippage</span>
+                                <span class="mono text-slate-100 text-lg font-medium">0.8 bps</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/50 bg-obsidian py-12 px-6 sm:px-8 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="pt-8 border-t border-slate-800/30">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+                        <div class="text-slate-500 text-xs font-light" style="font-size: 10px;">
+                            © 2026 Well Worth Investment Sweden. All Rights Reserved. Institutional Use Only.
+                        </div>
+                        <div class="flex items-center space-x-4 text-slate-500 text-xs font-light" style="font-size: 10px;">
+                            <button onclick="openTermsModal()" class="hover:text-slate-300 transition-colors cursor-pointer">Terms of Access</button>
+                            <span class="text-slate-700">|</span>
+                            <button onclick="openPrivacyModal()" class="hover:text-slate-300 transition-colors cursor-pointer">Privacy</button>
+                            <span class="text-slate-700">|</span>
+                            <button onclick="openRegulationModal()" class="hover:text-slate-300 transition-colors cursor-pointer">Regulation</button>
+                        </div>
+                    </div>
+                    <button onclick="openContactModal()" class="mono px-8 py-3 border border-slate-700/50 bg-slate-900/50 text-slate-100 hover:border-slate-600 hover:bg-slate-800/50 transition-all duration-300 text-sm font-medium tracking-tight">
+                        CONTACT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="fixed inset-0 bg-obsidian/95 backdrop-blur-sm z-[70] items-center justify-center" style="display: none;">
+        <div class="relative max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="border border-slate-800 bg-zinc-950 p-12 space-y-8 my-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="mono text-2xl font-medium text-slate-100 mb-2 tracking-tight">INQUIRIES</h2>
+                        <div class="w-16 h-px bg-slate-700"></div>
+                    </div>
+                    <button onclick="closeContactModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-slate-400 text-sm leading-relaxed font-light">
+                        Direct engagement for institutional dialogue and strategic inquiries.
+                    </p>
+                    <div class="pb-6 border-b border-slate-800/50">
+                        <p class="mono text-slate-400 text-xs font-medium tracking-wider uppercase mb-2">Contact Email</p>
+                        <a href="mailto:info@wellworth.se" class="text-slate-300 hover:text-slate-100 transition-colors text-sm font-light">
+                            info@wellworth.se
+                        </a>
+                    </div>
+                    <form id="inquiryForm" class="space-y-6">
+                        <div>
+                            <label for="inquiryName" class="mono block text-slate-400 text-xs font-medium tracking-wider uppercase mb-2">Name</label>
+                            <input type="text" id="inquiryName" name="name" required class="w-full px-4 py-3 bg-slate-900/50 border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors font-light text-sm" placeholder="Your name">
+                        </div>
+                        <div>
+                            <label for="inquiryOrganization" class="mono block text-slate-400 text-xs font-medium tracking-wider uppercase mb-2">Organization</label>
+                            <input type="text" id="inquiryOrganization" name="organization" required class="w-full px-4 py-3 bg-slate-900/50 border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors font-light text-sm" placeholder="Your organization">
+                        </div>
+                        <div>
+                            <label for="inquiryEmail" class="mono block text-slate-400 text-xs font-medium tracking-wider uppercase mb-2">Professional Email</label>
+                            <input type="email" id="inquiryEmail" name="email" required class="w-full px-4 py-3 bg-slate-900/50 border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors font-light text-sm" placeholder="your.email@organization.com">
+                        </div>
+                        <div>
+                            <label for="inquiryMessage" class="mono block text-slate-400 text-xs font-medium tracking-wider uppercase mb-2">Inquiry</label>
+                            <textarea id="inquiryMessage" name="inquiry" rows="6" required class="w-full px-4 py-3 bg-slate-900/50 border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors font-light text-sm resize-none" placeholder="Your inquiry"></textarea>
+                        </div>
+                        <div class="pt-4 border-t border-slate-800/50">
+                            <button type="submit" class="mono w-full px-6 py-3 border border-slate-700 bg-slate-900/50 text-slate-100 hover:border-slate-600 hover:bg-slate-800/50 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                                Submit Inquiry
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Access Modal -->
+    <div id="termsModal" class="fixed inset-0 bg-obsidian/95 backdrop-blur-sm z-[70] items-center justify-center" style="display: none;">
+        <div class="relative max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="border border-slate-800/50 bg-obsidian p-12 space-y-8 my-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="mono text-2xl font-medium text-slate-100 mb-2 tracking-tight">Terms of Access & Institutional Use</h2>
+                        <div class="w-16 h-px bg-emerald-500/30"></div>
+                    </div>
+                    <button onclick="closeTermsModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-6 text-slate-400 text-sm leading-relaxed font-light">
+                    <div>
+                        <h3 class="mono text-slate-300 text-base font-medium mb-3 tracking-tight">Preamble</h3>
+                        <p>
+                            Access to this terminal and the research contained within is provided by Well Worth Investment Sweden on a confidential basis.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="mono text-slate-300 text-base font-medium mb-3 tracking-tight">Proprietary Nature</h3>
+                        <p>
+                            All methodologies, including but not limited to the Mirror Market Concept (MMC) and Market Maker Models (MMXM), are the proprietary intellectual property of Well Worth Investment Sweden. Unauthorized reproduction or redistribution of firm research is strictly prohibited.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="mono text-slate-300 text-base font-medium mb-3 tracking-tight">No Solicitation</h3>
+                        <p>
+                            This website is intended for informational purposes for proprietary trading operations. It does not constitute an offer to sell or a solicitation of an offer to buy any securities or investment products. External capital inquiries are subject to strict regulatory vetting and "Qualified Investor" status.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="mono text-slate-300 text-base font-medium mb-3 tracking-tight">Execution Disclaimer</h3>
+                        <p>
+                            Market data and execution case studies are for illustrative purposes. Well Worth Investment Sweden trades exclusively with firm-owned capital; past execution alpha is no guarantee of future strategy performance.
+                        </p>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-slate-800/50">
+                    <button onclick="closeTermsModal()" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacyModal" class="fixed inset-0 bg-obsidian/95 backdrop-blur-sm z-[70] items-center justify-center" style="display: none;">
+        <div class="relative max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="border border-slate-800/50 bg-obsidian p-12 space-y-8 my-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="mono text-2xl font-medium text-slate-100 mb-2 tracking-tight">Privacy</h2>
+                        <div class="w-16 h-px bg-emerald-500/30"></div>
+                    </div>
+                    <button onclick="closePrivacyModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4 text-slate-400 text-sm leading-relaxed font-light">
+                    <p>
+                        We adhere to strict Swedish data protection standards and GDPR. Well Worth Investment Sweden does not harvest, track, or sell user data. Partner Portal inquiries are handled with absolute confidentiality.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Information Collection:</strong> Well Worth Investment Sweden collects information that you provide directly to us, including name, contact information, and professional background. We may also collect technical information automatically when you visit our website, including IP address, browser type, and usage patterns.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Use of Information:</strong> We use collected information to provide investment management services, communicate with you about our services, comply with legal and regulatory obligations, and improve our website and services. We do not sell or rent your personal information to third parties.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Data Security:</strong> We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is 100% secure.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Contact:</strong> For privacy-related inquiries, please contact: privacy@wellworthinvestment.se
+                    </p>
+                </div>
+                <div class="pt-6 border-t border-slate-800/50">
+                    <button onclick="closePrivacyModal()" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regulation Modal -->
+    <div id="regulationModal" class="fixed inset-0 bg-obsidian/95 backdrop-blur-sm z-[70] items-center justify-center" style="display: none;">
+        <div class="relative max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="border border-slate-800/50 bg-obsidian p-12 space-y-8 my-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="mono text-2xl font-medium text-slate-100 mb-2 tracking-tight">Regulation</h2>
+                        <div class="w-16 h-px bg-emerald-500/30"></div>
+                    </div>
+                    <button onclick="closeRegulationModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4 text-slate-400 text-sm leading-relaxed font-light">
+                    <p>
+                        As a 100% proprietary entity, Well Worth Investment Sweden is not required to be registered as a public investment advisor with Finansinspektionen or the US SEC. Our internal compliance framework mirrors MiFID II and Basel III standards for institutional-grade readiness.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Regulatory Status:</strong> Well Worth Investment Sweden operates in compliance with applicable securities laws and regulations. As a proprietary trading firm, our activities are conducted in accordance with Swedish financial regulations and international best practices.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Compliance:</strong> We maintain comprehensive compliance policies and procedures designed to ensure adherence to all applicable laws, rules, and regulations. Our Chief Compliance Officer oversees our compliance program and reports directly to senior management.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Conflicts of Interest:</strong> As a proprietary trading firm, Well Worth Investment Sweden trades exclusively with firm-owned capital, eliminating client conflicts of interest. We have implemented policies and procedures to ensure transparent and ethical trading practices.
+                    </p>
+                    <p>
+                        <strong class="text-slate-300">Regulatory Inquiries:</strong> For regulatory inquiries, please contact: compliance@wellworthinvestment.se
+                    </p>
+                </div>
+                <div class="pt-6 border-t border-slate-800/50">
+                    <button onclick="closeRegulationModal()" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="fixed inset-0 bg-obsidian/95 backdrop-blur-sm z-50 items-center justify-center" style="display: none;">
+        <div class="relative max-w-md w-full mx-4">
+            <div class="border border-slate-800/50 bg-obsidian p-12 space-y-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="mono text-2xl font-medium text-slate-100 mb-2 tracking-tight">RESTRICTED ACCESS</h2>
+                        <div class="w-16 h-px bg-emerald-500/30"></div>
+                    </div>
+                    <button onclick="closeLoginOverlay()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-slate-400 text-sm leading-relaxed font-light">
+                        This portal is restricted to qualified institutional partners and accredited investors. Access requires prior authorization and verification of eligibility status.
+                    </p>
+                    <p class="text-slate-500 text-xs leading-relaxed font-light mono">
+                        For access inquiries, please contact your relationship manager or email: partners@wellworthinvestment.se
+                    </p>
+                    <div class="pt-6 border-t border-slate-800/50">
+                        <button onclick="closeLoginOverlay()" class="mono w-full px-6 py-3 border border-emerald-500/20 bg-emerald-500/5 text-slate-100 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all duration-300 text-xs font-medium tracking-wider uppercase">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smooth Scroll -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        function openLoginOverlay() {
+            const overlay = document.getElementById('loginOverlay');
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginOverlay() {
+            const overlay = document.getElementById('loginOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Terms Modal Functions
+        function openTermsModal() {
+            const modal = document.getElementById('termsModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTermsModal() {
+            const modal = document.getElementById('termsModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Privacy Modal Functions
+        function openPrivacyModal() {
+            const modal = document.getElementById('privacyModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePrivacyModal() {
+            const modal = document.getElementById('privacyModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Regulation Modal Functions
+        function openRegulationModal() {
+            const modal = document.getElementById('regulationModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegulationModal() {
+            const modal = document.getElementById('regulationModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoginOverlay();
+                closeTermsModal();
+                closePrivacyModal();
+                closeRegulationModal();
+                closeContactModal();
+            }
+        });
+
+        // Close modals on background click
+        document.getElementById('loginOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginOverlay();
+            }
+        });
+
+        document.getElementById('termsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTermsModal();
+            }
+        });
+
+        document.getElementById('privacyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePrivacyModal();
+            }
+        });
+
+        document.getElementById('regulationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRegulationModal();
+            }
+        });
+
+        document.getElementById('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContactModal();
+            }
+        });
+
+        // Contact Modal Functions
+        function openContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Inquiry Form Handler
+        document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const name = formData.get('name');
+            const organization = formData.get('organization');
+            const email = formData.get('email');
+            const inquiry = formData.get('inquiry');
+            
+            // Create mailto link with form data
+            const subject = encodeURIComponent('Inquiry from ' + name + ' - ' + organization);
+            const body = encodeURIComponent('Name: ' + name + '\nOrganization: ' + organization + '\nEmail: ' + email + '\n\nInquiry:\n' + inquiry);
+            const mailtoLink = 'mailto:info@wellworth.se?subject=' + subject + '&body=' + body;
+            
+            // Open email client
+            window.location.href = mailtoLink;
+            
+            // Show confirmation message
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+            button.textContent = 'Opening Email Client...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+
