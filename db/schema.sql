@@ -1,5 +1,5 @@
 -- ============================================================
--- Carrier Alpha — Canonical Database Schema v1
+-- Carrier Alpha — Canonical Database Schema v1 (Step 5 updated)
 -- Purpose: Treasury-grade logistics audit & recovery ledger
 -- ============================================================
 
@@ -79,12 +79,12 @@ create table if not exists public.invoices (
 create table if not exists public.service_commitments (
   id uuid primary key default uuid_generate_v4(),
 
-  carrier varchar not null,              -- 'FEDEX' | 'UPS'
-  service_type varchar not null,         -- exact service string used in shipments
+  carrier varchar not null,
+  service_type varchar not null,
   guaranteed boolean not null default true,
 
-  commit_time_local time,                -- optional (e.g. 10:30:00)
-  commit_day_type varchar,               -- optional ('EOD', 'TIME_DEF', etc.)
+  commit_time_local time,
+  commit_day_type varchar,
 
   valid_from date not null default current_date,
   valid_to date,
@@ -96,8 +96,24 @@ create table if not exists public.service_commitments (
 );
 
 -- ============================================================
+-- EXCEPTION RULES (Caveat #2 fix - deterministic)
+-- ============================================================
+
+create table if not exists public.exception_rules (
+  id uuid primary key default uuid_generate_v4(),
+  carrier text not null,
+  match_type text not null,      -- 'CODE' | 'KEYWORD'
+  match_value text not null,     -- e.g. 'WX', 'WEATHER'
+  excusable boolean not null,
+  category text,                 -- WEATHER / ADDRESS / FORCE_MAJEURE / OTHER
+  created_at timestamptz default now(),
+  unique (carrier, match_type, match_value)
+);
+
+-- ============================================================
 -- AUDIT RESULTS
 -- Exactly ONE audit per shipment (deterministic verdict)
+-- Includes Caveat #1 (timezone) and Caveat #2 (exceptions)
 -- ============================================================
 
 create table if not exists public.audit_results (
@@ -113,10 +129,17 @@ create table if not exists public.audit_results (
   failure_reason text,
   rule_id varchar,
 
-  audited_at timestamptz default now()
+  audited_at timestamptz default now(),
+
+  -- Caveat #1: timezone
+  timezone_assumption text,
+  timezone_confidence numeric,
+
+  -- Caveat #2: exceptions
+  exception_category text,
+  exception_signal text
 );
 
--- HARD INVARIANT: one audit per shipment
 alter table public.audit_results
 add constraint audit_results_one_per_shipment
 unique (shipment_id);
@@ -154,7 +177,6 @@ create table if not exists public.claims (
   created_at timestamptz default now()
 );
 
--- HARD INVARIANT: one claim per shipment
 alter table public.claims
 add constraint claims_one_per_shipment
 unique (shipment_id);
@@ -166,27 +188,38 @@ create index if not exists idx_claims_status
   on public.claims (status);
 
 -- ============================================================
--- SEED DATA (Optional for v1 local reproducibility)
--- NOTE: Safe to run multiple times due to ON CONFLICT DO NOTHING
+-- CANONICAL VIEW: v_audit_truth (Single source of truth)
 -- ============================================================
 
-insert into public.service_commitments
-  (carrier, service_type, guaranteed, commit_day_type, valid_from)
-values
-  -- FEDEX (Express)
-  ('FEDEX', 'PRIORITY OVERNIGHT', true, 'TIME_DEF', current_date),
-  ('FEDEX', 'STANDARD OVERNIGHT', true, 'TIME_DEF', current_date),
-  ('FEDEX', '2DAY', true, 'EOD', current_date),
-  ('FEDEX', 'FEDEX 2DAY', true, 'EOD', current_date),
-  ('FEDEX', 'EXPRESS SAVER', true, 'EOD', current_date),
-
-  -- UPS (Air)
-  ('UPS', 'NEXT DAY AIR', true, 'TIME_DEF', current_date),
-  ('UPS', 'NEXT DAY AIR SAVER', true, 'EOD', current_date),
-  ('UPS', '2ND DAY AIR', true, 'EOD', current_date),
-  ('UPS', '3 DAY SELECT', true, 'EOD', current_date)
-on conflict do nothing;
-
--- ============================================================
--- END OF SCHEMA
--- ============================================================
+create or replace view public.v_audit_truth as
+select
+  s.id as shipment_id,
+  s.carrier,
+  s.tracking_number,
+  s.service_type,
+  s.shipped_at,
+  s.promised_delivery,
+  s.actual_delivery,
+  s.total_charged,
+  s.weight_lbs,
+  ar.is_eligible,
+  ar.variance_amount,
+  ar.failure_reason,
+  ar.rule_id,
+  ar.audited_at,
+  ar.timezone_assumption,
+  ar.timezone_confidence,
+  ar.exception_category,
+  ar.exception_signal,
+  c.id as claim_id,
+  c.status as claim_status,
+  c.claim_amount,
+  c.recovery_amount,
+  c.carrier_case_number,
+  c.submitted_at,
+  c.settled_at,
+  c.created_at as claim_created_at,
+  c.reason as claim_reason
+from public.shipments s
+join public.audit_results ar on ar.shipment_id = s.id
+left join public.claims c on c.shipment_id = s.id;
