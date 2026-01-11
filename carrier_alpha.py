@@ -18,40 +18,52 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def load_truth_view() -> pd.DataFrame:
-    """
-    Canonical source of truth: public.v_audit_truth
-    """
     resp = supabase.table("v_audit_truth").select("*").execute()
     return pd.DataFrame(resp.data) if resp.data else pd.DataFrame()
 
 def generate_fedex_dispute_csv(df: pd.DataFrame) -> bytes:
-    """
-    Minimal FedEx portal artifact (v1).
-    Source rows: claims in DRAFT state (from v_audit_truth).
-    """
     out = df[['tracking_number', 'claim_amount']].copy()
     out.columns = ['Tracking ID', 'Dispute Amount']
-    out['Dispute Type'] = '5'  # FedEx Service Failure
+    out['Dispute Type'] = '5'
     out['Comments'] = 'Guaranteed Service Refund - Late'
     return out.to_csv(index=False).encode("utf-8")
 
 def mark_claims_submitted(claim_ids: list[str]) -> None:
-    """
-    Update claims to SUBMITTED with submitted_at timestamp.
-    Deterministic lifecycle transition (v1).
-    """
     if not claim_ids:
         return
-
     now_iso = datetime.now(timezone.utc).isoformat()
-
-    # Supabase Python client doesn't support bulk update by list in a single call cleanly in all versions.
-    # We update one-by-one to be explicit and safe.
     for cid in claim_ids:
         supabase.table("claims").update({
             "status": "SUBMITTED",
             "submitted_at": now_iso
         }).eq("id", cid).execute()
+
+def reconcile_claim(claim_id: str, status: str, carrier_case_number: str | None, recovery_amount: float | None) -> None:
+    """
+    Minimal operator reconciliation:
+    - Set status to RECOVERED or DENIED
+    - Set settled_at
+    - Set recovery_amount for RECOVERED
+    - Optionally set carrier_case_number
+    """
+    if status not in ["RECOVERED", "DENIED"]:
+        raise ValueError("Invalid reconciliation status")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    payload = {
+        "status": status,
+        "settled_at": now_iso
+    }
+
+    if carrier_case_number:
+        payload["carrier_case_number"] = carrier_case_number.strip()
+
+    if status == "RECOVERED":
+        if recovery_amount is None:
+            raise ValueError("recovery_amount required for RECOVERED")
+        payload["recovery_amount"] = float(recovery_amount)
+
+    supabase.table("claims").update(payload).eq("id", claim_id).execute()
 
 # --- HEADER ---
 st.title("🛡️ Carrier Alpha")
@@ -69,7 +81,7 @@ df['variance_amount'] = pd.to_numeric(df.get('variance_amount', 0), errors='coer
 df['claim_amount'] = pd.to_numeric(df.get('claim_amount', 0), errors='coerce').fillna(0)
 df['recovery_amount'] = pd.to_numeric(df.get('recovery_amount', 0), errors='coerce').fillna(0)
 
-# --- KPI LAYER (Treasury Metrics) ---
+# --- KPI LAYER ---
 total_spend = df['total_charged'].sum()
 total_refundable = df[df['is_eligible'] == True]['variance_amount'].sum()
 
@@ -106,7 +118,8 @@ roadmap_cols = [
     'failure_reason', 'rule_id',
     'timezone_assumption', 'timezone_confidence',
     'exception_category', 'exception_signal',
-    'carrier_case_number'
+    'carrier_case_number',
+    'claim_id'
 ]
 roadmap_cols = [c for c in roadmap_cols if c in roadmap.columns]
 
@@ -143,6 +156,37 @@ if not draft_df.empty:
 
 else:
     st.info("No DRAFT claims ready for export.")
+
+st.divider()
+
+# --- RECONCILIATION (Operator) ---
+st.write("### 🧾 Reconciliation (Operator)")
+
+with st.form("reconcile_form"):
+    claim_id = st.text_input("Claim ID (UUID)", help="Copy claim_id from the Recovery Roadmap table above.")
+    new_status = st.selectbox("Set Status", ["RECOVERED", "DENIED"])
+    carrier_case_number = st.text_input("Carrier Case Number (optional)")
+    recovery_amount = None
+    if new_status == "RECOVERED":
+        recovery_amount = st.number_input("Recovered Amount ($)", min_value=0.0, value=0.0, step=0.01)
+
+    submitted = st.form_submit_button("Apply Reconciliation")
+
+    if submitted:
+        try:
+            if not claim_id.strip():
+                st.error("Claim ID is required.")
+            else:
+                reconcile_claim(
+                    claim_id=claim_id.strip(),
+                    status=new_status,
+                    carrier_case_number=carrier_case_number.strip() if carrier_case_number else None,
+                    recovery_amount=recovery_amount if new_status == "RECOVERED" else None
+                )
+                st.success(f"Claim {claim_id.strip()} updated to {new_status}.")
+                st.rerun()
+        except Exception as e:
+            st.error(str(e))
 
 st.divider()
 
