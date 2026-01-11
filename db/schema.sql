@@ -1,33 +1,18 @@
--- =========================================================
--- Carrier Alpha — Canonical Database Schema (v1)
--- Source of truth for logistics treasury engine
--- =========================================================
--- This file reflects:
--- 1) Live Supabase tables
--- 2) Applied constraints and indexes
--- 3) Locked v1 invariants
---
--- Apply changes via Supabase SQL Editor
--- Then commit this file to git
--- =========================================================
+-- ============================================================
+-- Carrier Alpha — Canonical Database Schema v1
+-- Purpose: Treasury-grade logistics audit & recovery ledger
+-- ============================================================
 
--- Required extension (usually already enabled in Supabase)
+-- Enable UUIDs
 create extension if not exists "uuid-ossp";
 
--- =========================================================
+-- ============================================================
 -- ENUMS
--- =========================================================
+-- ============================================================
 
--- Claim lifecycle enum (locked for v1)
--- Lifecycle:
--- DRAFT → SUBMITTED → DISPUTED → RECOVERED | DENIED
 do $$
 begin
-  if not exists (
-    select 1
-    from pg_type
-    where typname = 'claim_status'
-  ) then
+  if not exists (select 1 from pg_type where typname = 'claim_status') then
     create type claim_status as enum (
       'DRAFT',
       'SUBMITTED',
@@ -38,16 +23,16 @@ begin
   end if;
 end$$;
 
--- =========================================================
--- TABLE: shipments
--- Canonical shipment record (1 row per carrier + tracking)
--- =========================================================
+-- ============================================================
+-- SHIPMENTS
+-- One row per (carrier, tracking_number)
+-- ============================================================
 
 create table if not exists public.shipments (
   id uuid primary key default uuid_generate_v4(),
 
-  carrier varchar not null,
   tracking_number varchar not null,
+  carrier varchar not null,
 
   service_type varchar,
   shipped_at timestamptz,
@@ -57,110 +42,106 @@ create table if not exists public.shipments (
   total_charged numeric default 0.00,
   weight_lbs numeric,
 
-  raw_json_data jsonb,  -- full carrier payload for audit evidence
+  raw_json_data jsonb,
 
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+
+  constraint shipments_carrier_tracking_unique
+    unique (carrier, tracking_number)
 );
 
--- Uniqueness: prevents duplicate claims
-alter table public.shipments
-add constraint shipments_carrier_tracking_unique
-unique (carrier, tracking_number);
+create index if not exists idx_shipments_tracking
+  on public.shipments (tracking_number);
 
--- =========================================================
--- TABLE: invoices
--- Carrier invoice ingestion (optional linkage in v1)
--- =========================================================
+create index if not exists idx_shipments_carrier
+  on public.shipments (carrier);
+
+-- ============================================================
+-- INVOICES
+-- ============================================================
 
 create table if not exists public.invoices (
   id uuid primary key default uuid_generate_v4(),
 
   file_name text not null,
   carrier text,
-
   total_amount numeric,
+
   status text default 'INGESTED',
 
   upload_date timestamptz default now()
 );
 
--- =========================================================
--- TABLE: audit_results
--- Deterministic eligibility decision ledger
--- =========================================================
+-- ============================================================
+-- AUDIT RESULTS
+-- Exactly ONE audit per shipment (deterministic verdict)
+-- ============================================================
 
 create table if not exists public.audit_results (
   id uuid primary key default uuid_generate_v4(),
 
-  shipment_id uuid not null,
+  shipment_id uuid
+    references public.shipments(id)
+    on delete cascade,
 
   is_eligible boolean default false,
   variance_amount numeric default 0.00,
 
-  failure_reason text,     -- human-readable explanation
-  rule_id varchar,         -- rule that triggered decision
+  failure_reason text,
+  rule_id varchar,
 
-  audited_at timestamptz default now(),
-
-  constraint audit_results_shipment_fk
-    foreign key (shipment_id)
-    references public.shipments(id)
-    on delete cascade
+  audited_at timestamptz default now()
 );
 
--- =========================================================
--- TABLE: claims
--- Operational recovery lifecycle (Recovery Roadmap)
--- =========================================================
+-- HARD INVARIANT: one audit per shipment
+alter table public.audit_results
+add constraint audit_results_one_per_shipment
+unique (shipment_id);
+
+create index if not exists idx_audit_results_shipment
+  on public.audit_results (shipment_id);
+
+-- ============================================================
+-- CLAIMS
+-- Exactly ONE claim per shipment
+-- ============================================================
 
 create table if not exists public.claims (
   id uuid primary key default uuid_generate_v4(),
 
-  shipment_id uuid not null,
-  audit_id uuid,
+  shipment_id uuid
+    references public.shipments(id)
+    on delete cascade,
+
+  audit_id uuid
+    references public.audit_results(id)
+    on delete restrict,
 
   status claim_status default 'DRAFT',
 
-  claim_amount numeric,        -- requested refund
-  recovery_amount numeric default 0.00,  -- credited by carrier
+  claim_amount numeric,
+  recovery_amount numeric default 0.00,
 
   carrier_case_number varchar,
   reason text,
 
   submitted_at timestamptz,
   settled_at timestamptz,
-  created_at timestamptz default now(),
 
-  constraint claims_shipment_fk
-    foreign key (shipment_id)
-    references public.shipments(id)
-    on delete cascade,
-
-  constraint claims_audit_fk
-    foreign key (audit_id)
-    references public.audit_results(id)
-    on delete set null
+  created_at timestamptz default now()
 );
 
--- =========================================================
--- INDEXES (performance + stability)
--- =========================================================
+-- HARD INVARIANT: one claim per shipment
+alter table public.claims
+add constraint claims_one_per_shipment
+unique (shipment_id);
 
-create index if not exists idx_shipments_carrier_tracking
-  on public.shipments(carrier, tracking_number);
-
-create index if not exists idx_audit_results_shipment_id
-  on public.audit_results(shipment_id);
-
-create index if not exists idx_claims_shipment_id
-  on public.claims(shipment_id);
-
-create index if not exists idx_claims_audit_id
-  on public.claims(audit_id);
+create index if not exists idx_claims_shipment
+  on public.claims (shipment_id);
 
 create index if not exists idx_claims_status
-  on public.claims(status);
+  on public.claims (status);
 
--- =========================================================
+-- ============================================================
 -- END OF SCHEMA
--- =========================================================
+-- ============================================================
