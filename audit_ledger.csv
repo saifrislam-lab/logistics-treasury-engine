@@ -1,0 +1,2 @@
+timestamp,carrier,tracking_number,status,description
+2026-01-08T13:50:54.272013,FEDEX,123456789012,EXCEPTION,Ready for pickup

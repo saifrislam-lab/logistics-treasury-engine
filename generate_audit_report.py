@@ -1,0 +1,133 @@
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
+from supabase import create_client, Client
+from datetime import datetime
+
+# --- CONFIGURATION ---
+SUPABASE_URL = "https://zclwtzzzdzrjoxqkklyt.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbHd0enp6ZHpyam94cWtrbHl0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzY2NzMxMCwiZXhwIjoyMDgzMjQzMzEwfQ.VtFzPmoOGIo3sl8AQ6w69odkgmQ03mqlbwYoecvuEKg"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+FILE_NAME = "Carrier_Alpha_Audit_Report.pdf"
+
+def fetch_data():
+    # Fetch all data to summarize
+    response = supabase.table("shipments").select("*").execute()
+    return response.data
+
+def generate_pdf():
+    print("📄 [REPORT] Generating CFO Audit Brief...")
+    data = fetch_data()
+    
+    if not data:
+        print("❌ No data found in vault.")
+        return
+
+    # 1. CALCULATE METRICS
+    total_spend = sum(item['net_charge'] for item in data)
+    recoverable = sum(item['predicted_refund'] for item in data if item['audit_status'] in ['POTENTIAL_REFUND', 'SUBMITTED', 'RECOVERED'])
+    leakage_rate = (recoverable / total_spend * 100) if total_spend > 0 else 0
+    audit_date = datetime.now().strftime("%B %d, %Y")
+
+    # 2. SETUP PDF CANVAS
+    c = canvas.Canvas(FILE_NAME, pagesize=letter)
+    width, height = letter
+
+    # --- HEADER ---
+    c.setFillColorRGB(0.05, 0.1, 0.2) # Dark Navy
+    c.rect(0, height - 100, width, 100, fill=1, stroke=0)
+    
+    c.setFillColor(colors.white)
+    c.setFont("Helvetica-Bold", 24)
+    c.drawString(50, height - 60, "CARRIER ALPHA | Audit Brief")
+    
+    c.setFont("Helvetica", 12)
+    c.drawString(50, height - 80, f"Generated: {audit_date}")
+
+    # --- EXECUTIVE SUMMARY ---
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, height - 150, "Executive Summary")
+
+    c.setFont("Helvetica", 12)
+    c.drawString(50, height - 180, "We have completed a forensic audit of your recent logistics invoices.")
+    c.drawString(50, height - 200, "Our system detected the following guaranteed service failures:")
+
+    # --- METRICS BOXES ---
+    # Box 1: Analyzed Spend
+    c.setStrokeColorRGB(0.8, 0.8, 0.8)
+    c.rect(50, height - 300, 150, 60, fill=0, stroke=1)
+    c.setFont("Helvetica", 10)
+    c.drawString(60, height - 260, "ANALYZED SPEND")
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(60, height - 290, f"${total_spend:,.2f}")
+
+    # Box 2: Recoverable Alpha
+    c.setFillColorRGB(0.9, 1.0, 0.9) # Light Green Background
+    c.rect(220, height - 300, 150, 60, fill=1, stroke=1)
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica", 10)
+    c.drawString(230, height - 260, "RECOVERABLE FUNDS")
+    c.setFont("Helvetica-Bold", 18)
+    c.setFillColorRGB(0.0, 0.5, 0.0) # Dark Green Text
+    c.drawString(230, height - 290, f"${recoverable:,.2f}")
+
+    # Box 3: Leakage %
+    c.setFillColor(colors.black)
+    c.rect(390, height - 300, 150, 60, fill=0, stroke=1)
+    c.setFont("Helvetica", 10)
+    c.drawString(400, height - 260, "LEAKAGE RATE")
+    c.setFont("Helvetica-Bold", 18)
+    c.setFillColor(colors.red)
+    c.drawString(400, height - 290, f"{leakage_rate:.2f}%")
+
+    # --- DETAILED TABLE ---
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 350, "Recoverable Artifacts (Sample)")
+
+    # Prepare Table Data
+    table_data = [['Tracking ID', 'Service Type', 'Issue', 'Refund Value']]
+    
+    # Add top 10 actionable items
+    actionable_items = [d for d in data if d['audit_status'] in ['POTENTIAL_REFUND', 'SUBMITTED']]
+    for item in actionable_items[:10]:
+        table_data.append([
+            item['tracking_number'],
+            item['service_type'][:20], # Truncate if long
+            "Late Delivery (GSR)",
+            f"${item['predicted_refund']:.2f}"
+        ])
+
+    # Draw Table
+    if len(table_data) > 1:
+        t = Table(table_data, colWidths=[150, 150, 120, 100])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        # Position table
+        t.wrapOn(c, width, height)
+        t.drawOn(c, 50, height - 380 - (len(table_data) * 20))
+    else:
+        c.setFont("Helvetica-Oblique", 12)
+        c.drawString(50, height - 380, "No recoverable items found in this batch.")
+
+    # --- FOOTER ---
+    c.setFont("Helvetica", 9)
+    c.drawString(50, 50, "Confidential Treasury Audit. Generated by Carrier Alpha Engine.")
+    c.drawString(50, 35, "To recover these funds, please sign the attached recovery agreement.")
+
+    c.save()
+    print(f"✅ [SUCCESS] Report generated: {FILE_NAME}")
+
+if __name__ == "__main__":
+    generate_pdf()
