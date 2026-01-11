@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
+from datetime import datetime, timezone
 
 # --- CONFIGURATION ---
 SUPABASE_URL = "https://zclwtzzzdzrjoxqkklyt.supabase.co"
-SUPABASE_KEY = "REPLACE_WITH_ENV_OR_SECRET_MANAGER"  # <-- keep your existing approach
+SUPABASE_KEY = "REPLACE_WITH_ENV_OR_SECRET_MANAGER"  # keep your existing approach
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.set_page_config(page_title="Carrier Alpha | Treasury", layout="wide")
@@ -34,6 +35,24 @@ def generate_fedex_dispute_csv(df: pd.DataFrame) -> bytes:
     out['Comments'] = 'Guaranteed Service Refund - Late'
     return out.to_csv(index=False).encode("utf-8")
 
+def mark_claims_submitted(claim_ids: list[str]) -> None:
+    """
+    Update claims to SUBMITTED with submitted_at timestamp.
+    Deterministic lifecycle transition (v1).
+    """
+    if not claim_ids:
+        return
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    # Supabase Python client doesn't support bulk update by list in a single call cleanly in all versions.
+    # We update one-by-one to be explicit and safe.
+    for cid in claim_ids:
+        supabase.table("claims").update({
+            "status": "SUBMITTED",
+            "submitted_at": now_iso
+        }).eq("id", cid).execute()
+
 # --- HEADER ---
 st.title("🛡️ Carrier Alpha")
 st.caption("Institutional Logistics Treasury Terminal")
@@ -44,7 +63,7 @@ if df.empty:
     st.warning("Vault empty. No records found in v_audit_truth.")
     st.stop()
 
-# Normalize for safety
+# Normalize numeric columns
 df['total_charged'] = pd.to_numeric(df.get('total_charged', 0), errors='coerce').fillna(0)
 df['variance_amount'] = pd.to_numeric(df.get('variance_amount', 0), errors='coerce').fillna(0)
 df['claim_amount'] = pd.to_numeric(df.get('claim_amount', 0), errors='coerce').fillna(0)
@@ -52,11 +71,8 @@ df['recovery_amount'] = pd.to_numeric(df.get('recovery_amount', 0), errors='coer
 
 # --- KPI LAYER (Treasury Metrics) ---
 total_spend = df['total_charged'].sum()
-
-# Eligible refundable delta (from audit ledger)
 total_refundable = df[df['is_eligible'] == True]['variance_amount'].sum()
 
-# Lifecycle buckets (claims-led)
 draft_df = df[df['claim_status'] == 'DRAFT']
 submitted_df = df[df['claim_status'] == 'SUBMITTED']
 disputed_df = df[df['claim_status'] == 'DISPUTED']
@@ -67,7 +83,6 @@ draft_val = draft_df['claim_amount'].sum()
 submitted_val = submitted_df['claim_amount'].sum()
 disputed_val = disputed_df['claim_amount'].sum()
 recovered_val = recovered_df['recovery_amount'].sum()
-denied_val = denied_df['claim_amount'].sum()
 
 leakage_rate = (total_refundable / total_spend * 100) if total_spend > 0 else 0.0
 
@@ -79,7 +94,7 @@ c4.metric("Recovered", f"${recovered_val:,.2f}", delta="Credited", delta_color="
 
 st.divider()
 
-# --- RECOVERY ROADMAP (Claims-led operational table) ---
+# --- RECOVERY ROADMAP ---
 st.write("### 📍 Recovery Roadmap (Claims Lifecycle)")
 
 roadmap = df[df['claim_status'].isin(['DRAFT', 'SUBMITTED', 'DISPUTED', 'RECOVERED', 'DENIED'])].copy()
@@ -102,13 +117,14 @@ st.dataframe(
 
 st.divider()
 
-# --- EXECUTION: Export DRAFT claims for FedEx (v1) ---
+# --- EXECUTION: Export & lifecycle transition ---
 st.write("### ⚡ Execution")
 
 if not draft_df.empty:
     st.warning(f"⚠️ {len(draft_df)} DRAFT claims ready for export (${draft_val:,.2f}).")
 
     csv_data = generate_fedex_dispute_csv(draft_df)
+
     st.download_button(
         label="⬇️ Download FedEx Dispute Artifact (.csv)",
         data=csv_data,
@@ -116,11 +132,19 @@ if not draft_df.empty:
         mime="text/csv",
         help="Upload this CSV to FedEx Billing Online to initiate disputes."
     )
+
+    st.caption("After you download and submit the CSV to FedEx, mark these claims as SUBMITTED.")
+
+    if st.button("✅ Mark exported DRAFT claims as SUBMITTED"):
+        claim_ids = [str(x) for x in draft_df['claim_id'].dropna().tolist()]
+        mark_claims_submitted(claim_ids)
+        st.success(f"Marked {len(claim_ids)} claims as SUBMITTED.")
+        st.rerun()
+
 else:
     st.info("No DRAFT claims ready for export.")
 
 st.divider()
 
-# --- FULL LEDGER (Truth view) ---
 with st.expander("View Full Canonical Ledger (v_audit_truth)"):
     st.dataframe(df, use_container_width=True)
